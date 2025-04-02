@@ -103,11 +103,11 @@ export const getTopCategories = async (req, res) => {
             attributes: [
                 'id',
                 'nom',
-                [sequelize.fn('COUNT', sequelize.col('Produits.id')), 'nombreProduits']
+                [sequelize.fn('COUNT', sequelize.col('Produit.id')), 'nombreProduits']
             ],
             include: [{ model: Product, attributes: [] }],
             group: ['Categorie.id', 'Categorie.nom'],
-            order: [[sequelize.fn('COUNT', sequelize.col('Produits.id')), 'DESC']],
+            order: [[sequelize.fn('COUNT', sequelize.col('Produit.id')), 'DESC']],
             limit: 5
         });
         res.status(200).json(categories);
@@ -156,5 +156,25 @@ export const getCategoriesAvgPriceOver100 = async (req, res) => {
         res.status(200).json(categories);
     } catch (error) {
         res.status(500).json({ message: "Erreur lors de la récupération des catégories avec prix moyen > 100", error: error.message });
+    }
+};
+
+export const getCategoriesAveragePrice = async (req, res) => {
+    try {
+        const categories = await Categorie.findAll({
+            attributes: [
+                'id',
+                'nom',
+                [sequelize.fn('AVG', sequelize.col('Produits.prix')), 'moyennePrix']
+            ],
+            include: [{
+                model: Product,
+                attributes: []
+            }],
+            group: ['Categorie.id', 'Categorie.nom']
+        });
+        res.status(200).json(categories);
+    } catch (error) {
+        res.status(500).json({ message: "Erreur lors de la récupération des moyennes de prix par catégorie", error: error.message });
     }
 }; 
